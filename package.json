@@ -1,0 +1,23 @@
+{
+  "name": "global-chat",
+  "version": "1.0.0",
+  "description": "A Global chat application",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BandaySajid/global-chat.git"
+  },
+  "keywords": [
+    "ChatApp"
+  ],
+  "author": "Sajid Banday",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BandaySajid/global-chat/issues"
+  },
+  "homepage": "https://github.com/BandaySajid/global-chat#readme"
+}

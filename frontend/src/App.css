@@ -1,0 +1,83 @@
+#message_input::placeholder {
+  color: grey;
+  /* Change the color to red or your desired color */
+}
+
+#username-input::placeholder {
+  color: grey;
+  /* Change the color to red or your desired color */
+}
+
+#message_input {
+  background: linear-gradient(90deg, rgba(30, 34, 46, 1) 0%, rgba(18, 18, 30, 1) 35%, rgba(62, 68, 90, 1) 100%);
+  resize: none;
+  max-height: 200px;
+  border: none;
+}
+
+.message_form_container {
+  display: flex;
+  justify-content: center;
+}
+
+.message_input_container {
+  padding: 0.5rem;
+  align-items: center;
+  /* background: linear-gradient(90deg, rgba(30, 34, 46, 1) 0%, rgba(18, 18, 30, 1) 35%, rgba(62, 68, 90, 1) 100%); */
+  display: flex;
+  width: 50%;
+  gap: 2%;
+}
+
+#sidebar_icon {
+  display: none;
+}
+
+#logs_sidebar {
+  transition: all 0.2s ease-in-out;
+  transform: translateX(-1000px);
+}
+
+@media screen and (max-width : 800px) {
+  .message_input_container {
+    width: 96%;
+  }
+
+  #sidebar_icon {
+    display: block;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #979BB5;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #3E4459;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.typing-animation {
+  animation: seesaw 1s infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes seesaw {
+  0%, 100% {
+      transform: translateY(0);
+  }
+  50% {
+      transform: translateY(-8px); /* Adjust the distance for the seesaw motion */
+  }
+}
