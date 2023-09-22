@@ -39,11 +39,13 @@ Install the Frontend dependencies:
 ```bash
 npm install
 ```
+
 Start the Backend:
 
-bash
+```bash
 cd ../backend
 npm start
+```
 
 Start the Frontend:
 
