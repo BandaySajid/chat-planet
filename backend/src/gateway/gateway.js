@@ -31,34 +31,23 @@ const gateway = (server) => {
 
     const send_enc_message = async (type, msg, user = null, socket) => {
         let message_to_send;
-        switch (type) {
-            case 'join':
-                message_to_send = await encrypt_message(JSON.stringify({
-                    type: 'join',
-                    username: user
-                }));
-                break;
-            case 'left':
-                message_to_send = await encrypt_message(JSON.stringify({
-                    type: 'left',
-                    username: user
-                }));
-                break;
-            case 'clients_length':
-                message_to_send = await encrypt_message(JSON.stringify({
-                    type: 'clients_length',
+        if (['join', 'left', 'typing', 'clients_length'].includes(type)) {
+            if (type === 'clients_length') {
+                message_to_send = {
+                    type,
                     length: WSS.clients.size
-                }));
-                break;
-            case 'typing':
-                message_to_send = await encrypt_message(JSON.stringify({
-                    type: 'typing',
+                };
+            } else {
+                message_to_send = {
+                    type,
                     username: user
-                }));
-            default:
-                message_to_send = await encrypt_message(JSON.stringify(msg));
-                break;
+                };
+            }
+        } else {
+            message_to_send = msg;
         };
+
+        message_to_send = await encrypt_message(JSON.stringify(message_to_send));
 
         if (!socket) {
             if (!user) {
