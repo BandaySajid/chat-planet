@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
+// import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import MessageItem from './MessageItem.js';
@@ -6,9 +8,17 @@ import Gateway from '../gateway/gateway.js';
 import Logs from './Logs.js';
 import logsContext from '../context/logs/logsContext.js';
 import { Badge } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRightFromBracket, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 let gateway;
 
 const Chat = () => {
+    // const navigate = useNavigate();
+    if (!localStorage.getItem('username')) {
+        <Link to='/path' > some stuff </Link>
+    };
+
     const [msg_input, setMsgInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [shiftKey, setShiftKey] = useState(false);
@@ -88,6 +98,30 @@ const Chat = () => {
         }
     };
 
+    const [logout_confirm_state, setLogoutConfirmState] = useState(false);
+
+    const handleLogoutKey = () => {
+        console.log('before confirm state', logout_confirm_state);
+        if (!logout_confirm_state) {
+            setLogoutConfirmState(true);
+        } else {
+            setLogoutConfirmState(false);
+        }
+
+        console.log('confirm state', logout_confirm_state);
+    };
+
+    const handleLogout = () => {
+        gateway.send({
+            type: 'delete_user',
+            username: localStorage.getItem('username'),
+        });
+        localStorage.clear();
+        window.location.href = '/';
+    };
+
+    const [clientsLength, setClientslength] = useState(0);
+
     //creating gateway
     useEffect(() => {
         gateway = new Gateway();
@@ -95,6 +129,9 @@ const Chat = () => {
             try {
                 const msg = JSON.parse(wsMsg);
                 if (msg.type === 'join' || msg.type === 'left') {
+                    gateway.send({
+                        type: 'clients_length'
+                    });
                     return logState.setLogs({
                         type: msg.type,
                         content: `${msg.username} has ${msg.type === 'join' ? 'joined' : 'left'} the chat`
@@ -108,6 +145,9 @@ const Chat = () => {
                         return setTypingState(msg.username);
                     }
                 }
+                if (msg.type === 'clients_length') {
+                    return setClientslength(msg.length);
+                }
                 setMessages((prev) => {
                     return [...prev, msg];
                 });
@@ -119,44 +159,71 @@ const Chat = () => {
         gateway.start();
     }, []);
 
-    return (
-        <div style={{
-            background: 'linear-gradient(90deg, rgba(28,27,43,1) 0%, rgba(44,45,63,1) 35%, rgba(69,77,100,1) 100%)'
-            , height: '100vh',
-            width: '100vw'
-        }}>
-            <div className=" h-100 d-flex flex-column" style={{ gap: '1%' }}>
-                {typingState.trim().length > 0 && <Badge bg='none' className='my-1'>
-                    <span className='bg-primary p-1 typing-animation' style={{ borderRadius: '0.5rem' }}>{typingState} is typing...</span>
-                </Badge>}
+    return (<div style={{ background: 'linear-gradient(90deg, rgba(28,27,43,1) 0%, rgba(44,45,63,1) 35%, rgba(69,77,100,1) 100%)', height: '100vh' }}>
 
-                <div className="container chat_container text-white py-3 my-5" style={{
-                    height: '80%',
-                    // border: '1px solid red',
-                    borderRadius: '1rem',
-                    overflow: 'auto'
-                }}>
+        {
+            logout_confirm_state ? <div
+                className="modal show"
+                style={{ display: 'block', position: 'initial', background: 'linear-gradient(90deg, rgba(28,27,43,1) 0%, rgba(44,45,63,1) 35%, rgba(69,77,100,1) 100%)' }}
+            >
+                <Modal.Dialog>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Logout Confirm Dialog</Modal.Title>
+                    </Modal.Header>
 
-                    {messages.map((message, i) => {
-                        return <MessageItem key={i} message={message} />
-                    })}
-                </div>
-                <Logs />
+                    <Modal.Body>
+                        <p>Logout and delete current user.</p>
+                    </Modal.Body>
 
-                <div className="message_form_container" style={{ position: 'fixed', bottom: '10px', width: '100%' }}>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleLogoutKey}>Dismiss</Button>
+                        <Button variant="primary" onClick={handleLogout}>Confirm</Button>
+                    </Modal.Footer>
+                </Modal.Dialog>
+            </div> : <div style={{
+                background: 'linear-gradient(90deg, rgba(28,27,43,1) 0%, rgba(44,45,63,1) 35%, rgba(69,77,100,1) 100%)'
+                , height: '100vh',
+                width: '100vw'
+            }}>
+                <div className=" h-100 d-flex flex-column" style={{ gap: '1%' }}>
 
-                    <Form.Group className="message_input_container">
-                        <Form.Control as="textarea" rows={1} id='message_input' onChange={handleChange} value={msg_input}
-                            className='text-white' onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} placeholder="Enter your message" />
-                        <div>
-                            <Button className='btn btn-sm btn-dark' id='send_message_button' onClick={send_message} disabled={msg_input.trim().length === 0} >
-                                <i className="fa-solid fa-paper-plane"></i>
-                            </Button>
-                        </div>
-                    </Form.Group>
+                    {typingState.trim().length > 0 && <Badge bg='none' className='my-1'>
+                        <span className='bg-primary p-1 typing-animation' style={{ borderRadius: '0.5rem', position: 'absolute', fontSize: '0.5rem', top: '10px' }}>{typingState} is typing...</span>
+                    </Badge>}
+
+
+                    <FontAwesomeIcon role='button' icon={faRightFromBracket} id='logout-btn' className='
+                    icon text-warning' style={{ position: 'absolute', top: '10px', right: '10px', zIndex: '10', cursor: 'pointer', fontSize: '2rem' }} onClick={handleLogoutKey} />
+
+                    <div className="container chat_container text-white py-1 my-5" style={{
+                        height: '80%',
+                        // border: '1px solid red',
+                        borderRadius: '1rem',
+                        overflow: 'auto'
+                    }}>
+
+                        {messages.map((message, i) => {
+                            return <MessageItem key={i} message={message} />
+                        })}
+                    </div>
+                    <Logs clientsLength={clientsLength} />
+
+                    <div className="message_form_container" style={{ position: 'fixed', bottom: '10px', width: '100%' }}>
+
+                        <Form.Group className="message_input_container">
+                            <Form.Control as="textarea" rows={1} id='message_input' onChange={handleChange} value={msg_input}
+                                className='text-white' onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} placeholder="Enter your message" />
+                            <div>
+                                <Button className='btn btn-sm btn-dark' style={{cursor : 'pointer'}} id='send_message_button' onClick={send_message} disabled={msg_input.trim().length === 0} >
+                                    <FontAwesomeIcon role='button' icon={faPaperPlane}/>
+                                </Button>
+                            </div>
+                        </Form.Group>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
+    </div>
 
     );
 };

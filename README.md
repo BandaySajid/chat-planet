@@ -1,6 +1,6 @@
-# Global Chat Application
+# Chat Planet
 
-Welcome to the Global Chat Application! This application allows users to create accounts and chat with other global users anonymously. Users are not required to provide an email or password; they simply need to choose a username to get started. The application is built using React, Node.js, Express, and Websockets to facilitate real-time communication.
+Welcome to the Chat Planet! This application allows users to create accounts and chat with other global users anonymously. Users are not required to provide an email or password; they simply need to choose a username to get started. The application is built using React, Node.js, Express, and Websockets to facilitate real-time communication.
 
 ## Features
 User Registration: Users can create accounts by selecting a unique username. No email or password is required, ensuring complete anonymity.
@@ -15,18 +15,18 @@ Responsive Design: The user interface is built using React, ensuring a responsiv
 
 ## Installation
 
-Follow these steps to set up the Global Chat Application locally:
+Follow these steps to set up the Chat Planet locally:
 
 Clone the repository to your local machine:
 
 ```bash
 Copy code
-git clone https://github.com/BandaySajid/global-chat
+git clone https://github.com/BandaySajid/chat-planet
 ```
 Navigate to the project directory:
 
 ```bash
-cd global-chat
+cd chat-planet
 ```
 Install the Backend dependencies:
 

@@ -19,13 +19,20 @@ const User = () => {
         set_username_input(event.target.value);
     };
 
+    
     const handle_create_button_click = () => {
-        if (username_input.length > 4 && !username_input.includes(' ')) {
+        if (username_input.length > 4 && username_input.length < 20 && !username_input.includes(' ')) {
             localStorage.setItem('username', username_input);
             window.location.href = '/chat';
         };
         set_username_input('');
     };
+    
+    const handle_username_key = (event) => {
+        if(event.code === 'Enter'){
+            handle_create_button_click();
+        }
+    }
 
     return (
         <div style={{
@@ -47,12 +54,12 @@ const User = () => {
                 <Form.Control style={{
                     background: 'linear-gradient(90deg, rgba(30, 34, 46, 1) 0%, rgba(18, 18, 30, 1) 35%, rgba(62, 68, 90, 1) 100%)',
                     border: 'none',
-                    width: '50%'
-                }} size="sm" id="username-input" value={username_input} type="text" className='text-white' onChange={handle_username_input} placeholder="your anonymous username" />
-                <Form.Text style={{ color: '#ee8e8ecf', display: username_input.length < 5 || username_input.includes(' ') ? 'block' : 'none' }}>
-                    {username_input.includes(' ') ? 'username should not include spaces' : 'Your username must be at least 5 characters'}
+                    width: '70%'
+                }} size="sm" id="username-input" value={username_input} type="text" className='text-white' onChange={handle_username_input} onKeyUp={handle_username_key} placeholder="your anonymous username" />
+                <Form.Text style={{ color: '#ee8e8ecf', display: username_input.length < 5 || username_input.length > 20 || username_input.includes(' ') ? 'block' : 'none' }}>
+                    {username_input.includes(' ') ? 'username should not include spaces' : 'username length should be greater than 4 and less than 20'}
                 </Form.Text>
-                <Button className='btn btn-sm btn-dark' disabled={username_input.length < 4 || username_input.includes(' ')} onClick={handle_create_button_click}>
+                <Button className='btn btn-sm btn-dark' disabled={username_input.length < 4 || username_input.includes(' ') || username_input.length > 20} onClick={handle_create_button_click}>
                     Create
                 </Button>
 

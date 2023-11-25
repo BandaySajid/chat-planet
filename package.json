@@ -1,15 +1,15 @@
 {
-  "name": "global-chat",
+  "name": "chat-planet",
   "version": "1.0.0",
   "description": "A Global chat application",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": ""
+    "start": "node"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BandaySajid/global-chat.git"
+    "url": "git+https://github.com/BandaySajid/chat-planet.git"
   },
   "keywords": [
     "ChatApp"
@@ -17,7 +17,7 @@
   "author": "Sajid Banday",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/BandaySajid/global-chat/issues"
+    "url": "https://github.com/BandaySajid/chat-planet/issues"
   },
-  "homepage": "https://github.com/BandaySajid/global-chat#readme"
+  "homepage": "https://github.com/BandaySajid/chat-planet#readme"
 }

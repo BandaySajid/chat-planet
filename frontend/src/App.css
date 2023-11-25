@@ -30,7 +30,7 @@
 }
 
 #sidebar_icon {
-  display: none;
+  display: block;
 }
 
 #logs_sidebar {
@@ -43,9 +43,9 @@
     width: 96%;
   }
 
-  #sidebar_icon {
+  /* #sidebar_icon {
     display: block;
-  }
+  } */
 }
 
 ::-webkit-scrollbar {
@@ -78,6 +78,6 @@
       transform: translateY(0);
   }
   50% {
-      transform: translateY(-8px); /* Adjust the distance for the seesaw motion */
+      transform: translateY(-2px); /* Adjust the distance for the seesaw motion */
   }
 }

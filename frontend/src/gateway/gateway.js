@@ -9,8 +9,8 @@ class Gateway {
     }
 
     start() {
-        // this.connection = new WebSocket(`${window.location.protocol.split(':')[0] === 'http' ? 'ws' : 'wss'}://${window.location.hostname}:9090/chat`);
-        this.connection = new WebSocket(process.env.REACT_APP_WS_URL);
+        this.connection = new WebSocket(`${window.location.protocol.split(':')[0] === 'http' ? 'ws' : 'wss'}://${window.location.hostname}:9090/chat`);
+        // this.connection = new WebSocket(process.env.REACT_APP_WS_URL);
 
         this.connection.onopen = this.on_open.bind(this);
         this.connection.onmessage = this.on_message.bind(this);
@@ -25,6 +25,10 @@ class Gateway {
 
     on_open() {
         this.connected = true;
+
+        this.send({
+            type: 'clients_length'
+        })
 
         if (this.timer_id) {
             clearInterval(this.timer_id);
@@ -48,10 +52,15 @@ class Gateway {
         }
     }
 
-    on_close(code) {
+    on_close(event) {
+        console.log('connection closed', event);
         this.connected = false;
 
         console.log('gateway closed');
+        if (event.code === 1003 && event.reason === 'USERNAME_REQUIRED') {
+            window.location.href = '/';
+            return toast('Connection Closed! username is required!');
+        };
 
         if (!this.restart_auto) {
             this.restart_auto = true;
