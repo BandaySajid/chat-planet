@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import {encrypt_message, decrypt_message} from './cryptography.js';
 
 class Gateway {
     constructor() {
@@ -46,14 +47,14 @@ class Gateway {
         toast('Connected: The chat will disappear after 12:00');
     }
 
-    on_message(message) {
+    async on_message(message) {
         for (const cb of this.callbacks) {
-            cb(message.data);
+            const decrypted_data = await decrypt_message(message.data);
+            cb(decrypted_data);
         }
     }
 
     on_close(event) {
-        console.log('connection closed', event);
         this.connected = false;
 
         console.log('gateway closed');
@@ -77,19 +78,20 @@ class Gateway {
 
     on_error(error) {
         if (!this.connected) {
-            console.log(error);
             return toast('error : server is probably down');
             // return console.log('error with gateway: failed to establish websocket connection');
         }
         console.log('error with gateway', error);
     }
 
-    send(data) {
+    async send(data) {
         if (!this.connected) {
             return;
         }
 
-        this.connection.send(JSON.stringify(data));
+        const encrypted_data = await encrypt_message(JSON.stringify(data));
+
+        this.connection.send(encrypted_data);
     }
 
     feed(callback) {

@@ -79,21 +79,29 @@ const Chat = () => {
         if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
             return setShiftKey(true);
         }
-
-        if (event.code === 'Enter' && !shiftKey) {
+        
+        if (event.code === 'Enter' && !shiftKey && msg_input.trim().length > 0) {
             send_message();
             return;
         }
     };
-
+    
     const handleKeyUp = (event) => {
+        if (event.code === 'Backspace' && msg_input.trim().length <= 0 && tms) {
+            setTms(false);
+            gateway.send({
+                type: 'typing',
+                username: localStorage.getItem('username'),
+                type_code: 'close'
+            });
+            return;
+        }
         if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
             return setShiftKey(false);
         }
         if (event.code === 'Enter' && !shiftKey) {
             document.getElementById('message_input').style.height = '1px';
             setMsgInput('');
-            console.log(msg_input.trim().length)
             setTms(false);
         }
     };
@@ -101,14 +109,12 @@ const Chat = () => {
     const [logout_confirm_state, setLogoutConfirmState] = useState(false);
 
     const handleLogoutKey = () => {
-        console.log('before confirm state', logout_confirm_state);
         if (!logout_confirm_state) {
             setLogoutConfirmState(true);
         } else {
             setLogoutConfirmState(false);
         }
 
-        console.log('confirm state', logout_confirm_state);
     };
 
     const handleLogout = () => {
@@ -153,7 +159,7 @@ const Chat = () => {
                 });
             }
             catch (err) {
-                console.log('err', err);
+                console.errpr('err', err);
             }
         });
         gateway.start();
@@ -188,7 +194,7 @@ const Chat = () => {
                 <div className=" h-100 d-flex flex-column" style={{ gap: '1%' }}>
 
                     {typingState.trim().length > 0 && <Badge bg='none' className='my-1'>
-                        <span className='bg-primary p-1 typing-animation' style={{ borderRadius: '0.5rem', position: 'absolute', fontSize: '0.5rem', top: '10px' }}>{typingState} is typing...</span>
+                        <span className='bg-primary p-1 typing-animation' style={{ borderRadius: '0.5rem', position: 'absolute', fontSize: '0.7rem', top: '10px' }}>{typingState} is typing...</span>
                     </Badge>}
 
 
@@ -214,8 +220,8 @@ const Chat = () => {
                             <Form.Control as="textarea" rows={1} id='message_input' onChange={handleChange} value={msg_input}
                                 className='text-white' onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} placeholder="Enter your message" />
                             <div>
-                                <Button className='btn btn-sm btn-dark' style={{cursor : 'pointer'}} id='send_message_button' onClick={send_message} disabled={msg_input.trim().length === 0} >
-                                    <FontAwesomeIcon role='button' icon={faPaperPlane}/>
+                                <Button className='btn btn-sm btn-dark' style={{ cursor: 'pointer' }} id='send_message_button' onClick={send_message} disabled={msg_input.trim().length === 0} >
+                                    <FontAwesomeIcon role='button' icon={faPaperPlane} />
                                 </Button>
                             </div>
                         </Form.Group>
