@@ -1,9 +1,15 @@
+
 #message_input::placeholder {
   color: grey;
   /* Change the color to red or your desired color */
 }
 
 #username-input::placeholder {
+  color: grey;
+  /* Change the color to red or your desired color */
+}
+
+#password-input::placeholder {
   color: grey;
   /* Change the color to red or your desired color */
 }

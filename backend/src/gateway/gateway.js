@@ -1,18 +1,9 @@
-import { WebSocketServer } from 'ws';
-import config from '../../config.js';
-import crypto from 'node:crypto';
+
 import { encrypt_message, decrypt_message } from '../utils/cryptography.js';
 
-const SOCKET_CODES = ['USERNAME_REQUIRED', 'USER_DELETED'];
+const SOCKET_CODES = ['USERNAME_REQUIRED'];
 
-const gateway = (server) => {
-    const WSS = new WebSocketServer({
-        server: server,
-        path: '/chat'
-    }, () => {
-        console.log('websocket server is listening on port:', config.gateway.port);
-    });
-
+const gateway = (WSS, redis) => {
 
     const get_current_time = () => {
         const now = new Date(Date.now())
@@ -20,14 +11,6 @@ const gateway = (server) => {
         const time = (now.getHours() % 12 || 12) + ':' + (minutes < 10 ? '0' + minutes : minutes);
         return time;
     };
-
-    //messages will vanish after 2 minutes
-    let messages = [];
-    // setInterval(()=>{
-    //     messages = [];
-    // }, 20000);
-
-    const clients = {};
 
     const send_enc_message = async (type, msg, user = null, socket) => {
         let message_to_send;
@@ -40,7 +23,7 @@ const gateway = (server) => {
             } else {
                 message_to_send = {
                     type,
-                    username: user
+                    username: user.username
                 };
             }
         } else {
@@ -56,7 +39,7 @@ const gateway = (server) => {
                 });
             }
             return WSS.clients.forEach((client) => {
-                if (client.user !== user) {
+                if (client.user.uuid !== user.uuid) {
                     client.send(message_to_send);
                 };
             });
@@ -66,40 +49,39 @@ const gateway = (server) => {
     };
 
     WSS.on('connection', (socket) => {
-        // const send_encrypted_message = async (message) => {
-        //     const encrypted_message = await encrypt_message(message);
-        // };
+        let current_client;
 
         socket.on('message', async (message) => {
             try {
                 const decrypted_message = await decrypt_message(message.toString());
                 const msg = JSON.parse(decrypted_message);
+                msg.username = socket.user.username;
+
                 if (msg.type && msg.type === 'connection') {
-                    console.log('got a socket connection with username', msg.payload.username);
-                    if (!msg.payload.username) {
+                    console.log('got a socket connection with user', socket.user);
+                    if (!socket.user.username) {
                         return socket.close(1003, SOCKET_CODES[0]);
-                    }
-                    socket.user = msg.payload.username;
-
-                    if (!clients[socket.user]) {
-                        clients[socket.user] = {
-                            uuid: crypto.randomUUID(),
-                            connected: true,
-                        };
-
-                        await send_enc_message('join', msg, socket.user);
-                    }
-
-                    clients[socket.user].connected = true;
-                    //sending user join message to each client if the client connection was off for minimum 5 seconds.
-
-                    if (clients[socket.user].left) {
-                        await send_enc_message('join', msg, socket.user);
-                        clients[socket.user].left = false;
                     };
 
+                    // await send_enc_message('join', msg, socket.user);
+
+                    current_client = await redis.HGETALL(socket.user.username);
+
+                    await redis.HSET(socket.user.username, 'connected', 'true');
+                    current_client.connected = 'true'
+
+                    //sending user join message to each client if the client connection was off for minimum 5 seconds.
+
+                    if (!current_client.left) {
+                        await send_enc_message('join', msg, socket.user);
+                        await redis.HSET(socket.user.username, 'left', 'false');
+                    };
+
+                    const messages = await redis.LRANGE('messages', 0, -1);
+
                     messages.forEach(async (msg) => {
-                        if (clients[socket.user].uuid === msg.uid) {
+                        msg = JSON.parse(msg);
+                        if (current_client.uuid === msg.uid) {
                             msg.isOpponent = false
                         } else {
                             msg.isOpponent = true;
@@ -115,24 +97,18 @@ const gateway = (server) => {
                     return;
                 };
 
-                if (msg.type && msg.type === 'delete_user') {
-                    if (clients[socket.user].connected) {
-                        return socket.close(1000, SOCKET_CODES[1])
-                    };
-                };
-
                 if (msg.type && msg.type === 'clients_length') {
                     await send_enc_message('clients_length', null, null, socket);
                     return;
                 };
 
-                msg.uid = clients[msg.username].uuid;
+                msg.uid = current_client.uuid;
                 msg.sentAt = get_current_time();
 
-                messages.push(msg);
+                await redis.RPUSH('messages', JSON.stringify(msg));
 
                 WSS.clients.forEach(async (client) => {
-                    if (client.user === socket.user) {
+                    if (client.user.username === socket.user.username) {
                         msg.isOpponent = false;
                     }
                     else {
@@ -149,29 +125,39 @@ const gateway = (server) => {
 
         socket.on('close', async (code, reason) => {
             try {
+                console.log(`closing connection for the client with code ${code} and reason ${reason}`);
                 if (code === 1003) {
                     //closed by the server because username was not provided
                     return;
                 };
-                if (code === 1000 && reason.toString() === SOCKET_CODES[1]) {
-                    delete clients[socket.user];
-                    await send_enc_message('left', null, socket.user);
+
+                if (code === 1006) {
+                    console.log('socket was destroyed by server because the client is not authenticated or because of an abnormal response!');
+                    //closed by the server because the user is not authenticated or because of an abnormal data.
                     return;
-                }
-                if (clients[socket.user].connected) {
-                    clients[socket.user].connected = false
+                };
+   
+                if (current_client.connected === 'true') {
+                    await redis.HSET(socket.user.username, 'connected', 'false');
+                    current_client.connected = 'false';
                 }
 
                 //sending user left message to each client.
                 setTimeout(async () => {
-                    if (!clients[socket.user].connected) {
-                        clients[socket.user].left = true;
-                        await send_enc_message('left', null, socket.user);
+                    const connected = await redis.HGET(socket.user.username, 'connected');
+                    if (connected === 'false' || connected <= 0) {
+                        current_client.left = 'true';
+                        await redis.HSET(socket.user.username, 'left', 'true');
+                        await send_enc_message('left', null, socket.user.username);
                     }
                 }, 5000);
             } catch (err) {
                 console.error('an error occured when a socket connection closed:', err);
             }
+        });
+
+        socket.on('error', (err) => {
+            console.error('an error occured with socket', err);
         })
 
     });

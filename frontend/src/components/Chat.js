@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -11,13 +11,17 @@ import { Badge } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRightFromBracket, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 let gateway;
 
 const Chat = () => {
-    // const navigate = useNavigate();
-    if (!localStorage.getItem('username')) {
-        <Link to='/path' > some stuff </Link>
-    };
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+        window.location.href = '/';
+    }
 
     const [msg_input, setMsgInput] = useState('');
     const [messages, setMessages] = useState([]);
@@ -31,7 +35,6 @@ const Chat = () => {
         if (!tms && msg_input.trim().length > 0) {
             gateway.send({
                 type: 'typing',
-                username: localStorage.getItem('username'),
                 type_code: 'open'
             });
             setTms(true);
@@ -52,12 +55,10 @@ const Chat = () => {
         setTms(false);
         gateway.send({
             type: 'typing',
-            username: localStorage.getItem('username'),
             type_code: 'close'
         });
         if (msg_input.trim().length > 0) {
             const messageData = {
-                username: localStorage.getItem('username'),
                 message: msg_input
             };
 
@@ -79,19 +80,18 @@ const Chat = () => {
         if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
             return setShiftKey(true);
         }
-        
+
         if (event.code === 'Enter' && !shiftKey && msg_input.trim().length > 0) {
             send_message();
             return;
         }
     };
-    
+
     const handleKeyUp = (event) => {
         if (event.code === 'Backspace' && msg_input.trim().length <= 0 && tms) {
             setTms(false);
             gateway.send({
                 type: 'typing',
-                username: localStorage.getItem('username'),
                 type_code: 'close'
             });
             return;
@@ -117,13 +117,20 @@ const Chat = () => {
 
     };
 
-    const handleLogout = () => {
-        gateway.send({
-            type: 'delete_user',
-            username: localStorage.getItem('username'),
-        });
-        localStorage.clear();
-        window.location.href = '/';
+    const handleLogout = async () => {
+        try {
+            const resp = await fetch('/api/auth/logout');
+            const json_resp = await resp.json();
+            if (resp.status === 200) {
+                toast('user deleted successfully');
+                localStorage.clear();
+                navigate('/');
+            } else {
+                toast('Error: Cannot logout');
+            }
+        } catch (err) {
+
+        }
     };
 
     const [clientsLength, setClientslength] = useState(0);
