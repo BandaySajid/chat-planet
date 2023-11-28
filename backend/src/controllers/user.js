@@ -2,7 +2,7 @@ import redis from '../db/redis.js';
 import crypto from 'node:crypto';
 import { hash_it, compare_hash } from '../utils/cryptography.js';
 import jwt from 'jsonwebtoken';
-import config from '../../config.js';
+import config from '../../../config.js';
 
 const create_user = async (req, res) => {
     try {

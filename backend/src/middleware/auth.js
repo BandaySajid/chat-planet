@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
-import config from '../../config.js';
+import config from '../../../config.js';
 import cookie_parser from 'cookie';
 
 const isAuthenticated = (req) => {
     try {
-        let cookies = req.header.cookie;
+        let cookies = req.headers.cookie;
 
         if (!cookies) {
             return null;

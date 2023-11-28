@@ -28,30 +28,23 @@ Navigate to the project directory:
 ```bash
 cd chat-planet
 ```
-Install the Backend dependencies:
+
+Setup Environment
 
 ```bash
-cd backend
-npm install
+cp .env.sample .env && cp .env.local.sample frontend/.env.local && cp sample.config.js config.js  
 ```
-Install the Frontend dependencies:
+
+Install dependencies
 
 ```bash
-cd ../frontend
-npm install
+npm run setup
 ```
 
-Start the Backend:
+Start the App:
 
 ```bash
-cd ../backend
-npm start
+npm run dev
 ```
 
-Start the Frontend:
-
-```bash
-cd ../frontend
-npm start
-```
 Open your web browser and access the application at http://localhost:3000.

@@ -5,9 +5,14 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "backend": "cd ./backend && npm start",
-    "frontend": "cd ./frontend && npm start",
-    "app": "npm run backend & npm run frontend"
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "install_backend": "cd backend && npm install",
+    "install_frontend": "cd frontend && npm install",
+    "setup": "npm run install_backend && npm run install_frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "build": "cd frontend && npm run build",
+    "prod": "npm run build && npm run backend"
   },
   "repository": {
     "type": "git",
@@ -21,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/BandaySajid/chat-planet/issues"
   },
-  "homepage": "https://github.com/BandaySajid/chat-planet#readme"
+  "homepage": "https://github.com/BandaySajid/chat-planet#readme",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

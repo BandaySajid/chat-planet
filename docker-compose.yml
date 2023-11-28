@@ -1,0 +1,16 @@
+version: '3'
+services:
+    app:
+        container_name: chatplanet_app
+        image: node:20.9.0
+        ports:
+            - "9090:9090"
+            - "9091:9091"
+        volumes:
+            - ./:/opt/src
+        command: bash -c 'cd /opt/src && if [ "$APPENV" = "production" ]; then npm run setup && npm run prod; else npm run setup && npm run dev; fi'
+        environment:
+            APPENV: ${APPENV}
+    redis:
+        container_name: chatplanet_redis
+        image: redis:7.2.3

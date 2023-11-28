@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import config from '../../config.js';
+import config from '../../../config.js';
 import CryptoJS from 'crypto-js'
 
 const key = CryptoJS.enc.Hex.parse(config.crypto.encryption_key);
