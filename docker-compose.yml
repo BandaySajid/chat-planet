@@ -4,8 +4,8 @@ services:
         container_name: chatplanet_app
         image: node:20.9.0
         ports:
-            - "9000:9000"
-            - "9001:9001"
+            - "9090:9090"
+            - "9091:9091"
             - "3000:3000"
         volumes:
             - ./:/opt/src
