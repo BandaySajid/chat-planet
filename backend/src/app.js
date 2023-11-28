@@ -19,9 +19,10 @@ app.use('/api/auth', user_router);
 
 if (config.environment === 'production') {
     const build_path = path.join(__dirname, '..', '..', 'frontend', 'build');
-    app.use(express.static(build_path));
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(build_path, 'index.html'));
+    app.use('/static', express.static(path.join(build_path, 'static')));
+    app.use('/static', express.static(build_path));
+    app.get('*', (req, res) => {
+        res.sendFile('index.html', {root : build_path});
     });
 };
 
