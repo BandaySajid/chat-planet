@@ -46,5 +46,12 @@ Start the App:
 ```bash
 npm run dev
 ```
+OR
+```bash
+docker compose up
+```
+
+
+
 
 Open your web browser and access the application at http://localhost:3000.

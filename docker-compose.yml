@@ -12,6 +12,7 @@ services:
         command: bash -c 'cd /opt/src && if [ "$APPENV" = "production" ]; then npm run setup && npm run prod; else npm run setup && npm run dev; fi'
         environment:
             APPENV: ${APPENV}
+            HOSTENV: DOCKER
     redis:
         container_name: chatplanet_redis
         image: redis:7.2.3

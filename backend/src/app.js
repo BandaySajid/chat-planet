@@ -17,15 +17,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: '*' }));
 app.use('/api/auth', user_router);
 
-if(process.env.APPENV === 'production'){
-    app.get('/', (req, res)=>{
+if (config.environment === 'production') {
+    app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, '..', '..', 'frontend', 'build', 'index.html'));
     });
 };
 
 const server = http.createServer(app);
 
-app.use('*', (req, res)=>{
+app.use('*', (req, res) => {
     res.status(403).send('ACCESS DENIED');
 });
 
