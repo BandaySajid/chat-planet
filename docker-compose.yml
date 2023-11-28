@@ -6,6 +6,7 @@ services:
         ports:
             - "9090:9090"
             - "9091:9091"
+            - "3000":"3000"
         volumes:
             - ./:/opt/src
         command: bash -c 'cd /opt/src && if [ "$APPENV" = "production" ]; then npm run setup && npm run prod; else npm run setup && npm run dev; fi'
