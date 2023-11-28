@@ -18,8 +18,10 @@ app.use(cors({ origin: '*' }));
 app.use('/api/auth', user_router);
 
 if (config.environment === 'production') {
+    const build_path = path.join(__dirname, '..', '..', 'frontend', 'build');
+    app.use(express.static(build_path));
     app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '..', '..', 'frontend', 'build', 'index.html'));
+        res.sendFile(path.join(build_path, 'index.html'));
     });
 };
 
