@@ -2,11 +2,11 @@ const config = {
     environment : process.env.APPENV || 'development',
     gateway: {
         host: '127.0.0.1',
-        port: 9000
+        port: 9001
     },
     server: {
         host: '127.0.0.1',
-        port: 9001
+        port: 9000
     },
     crypto: {
         encryption_key: 'cb4a9eb935fb4474cafab0a1245a0d75',
