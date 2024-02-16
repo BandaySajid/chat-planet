@@ -21,14 +21,14 @@ if (config.environment === 'production') {
     const build_path = path.join(__dirname, '..', '..', 'frontend', 'build');
     app.use('/static', express.static(path.join(build_path, 'static')));
     app.use('/static', express.static(build_path));
-    app.get('*', (req, res) => {
+    app.get('*', (_, res) => {
         res.sendFile('index.html', {root : build_path});
     });
 };
 
 const server = http.createServer(app);
 
-app.use('*', (req, res) => {
+app.use('*', (_, res) => {
     res.status(403).send('ACCESS DENIED');
 });
 

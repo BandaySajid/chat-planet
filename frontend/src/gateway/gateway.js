@@ -1,5 +1,4 @@
 import { toast } from 'react-toastify';
-import {encrypt_message, decrypt_message} from './cryptography.js';
 
 class Gateway {
     constructor() {
@@ -49,8 +48,7 @@ class Gateway {
 
     async on_message(message) {
         for (const cb of this.callbacks) {
-            const decrypted_data = await decrypt_message(message.data);
-            cb(decrypted_data);
+            cb(message.data);
         }
     }
 
@@ -89,9 +87,7 @@ class Gateway {
             return;
         }
 
-        const encrypted_data = await encrypt_message(JSON.stringify(data));
-
-        this.connection.send(encrypted_data);
+        this.connection.send(JSON.stringify(data));
     }
 
     feed(callback) {

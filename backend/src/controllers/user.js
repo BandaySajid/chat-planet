@@ -88,8 +88,6 @@ const login_user = async (req, res) => {
 
         const user_data = await redis.HGETALL(username);
 
-        console.log('user data', user_data);
-
         if (!compare_hash(password, user_data.password)) { //password hash doesn't match
             return res.status(401).json({
                 status: 'wrong password',

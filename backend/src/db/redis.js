@@ -10,8 +10,13 @@ redisClient.on('error', (err) => {
 });
 
 (async function () {
-    await redisClient.connect();
-    console.log('[REDIS]: CONNECTION on PORT 6379 successful!');
+	try{
+    	await redisClient.connect();
+		await redisClient.PING();
+    	console.log('[REDIS]: CONNECTION on PORT 6379 successful!');
+	}catch(err){
+		console.log('[REDIS-ERROR]: Cannot connect to redis due to an ERROR:', err);
+	}
 })();
 
 export default redisClient;

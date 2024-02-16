@@ -1,6 +1,3 @@
-
-import { encrypt_message, decrypt_message } from '../utils/cryptography.js';
-
 const SOCKET_CODES = ['USERNAME_REQUIRED'];
 
 const gateway = (WSS, redis) => {
@@ -12,7 +9,7 @@ const gateway = (WSS, redis) => {
         return time;
     };
 
-    const send_enc_message = async (type, msg, user = null, socket) => {
+    const send_message = (type, msg, user = null, socket) => {
         let message_to_send;
         if (['join', 'left', 'typing', 'clients_length'].includes(type)) {
             if (type === 'clients_length') {
@@ -30,7 +27,7 @@ const gateway = (WSS, redis) => {
             message_to_send = msg;
         };
 
-        message_to_send = await encrypt_message(JSON.stringify(message_to_send));
+		message_to_send = JSON.stringify(message_to_send);
 
         if (!socket) {
             if (!user) {
@@ -53,8 +50,7 @@ const gateway = (WSS, redis) => {
 
         socket.on('message', async (message) => {
             try {
-                const decrypted_message = await decrypt_message(message.toString());
-                const msg = JSON.parse(decrypted_message);
+                const msg = JSON.parse(message.toString());
                 msg.username = socket.user.username;
 
                 if (msg.type && msg.type === 'connection') {
@@ -63,7 +59,7 @@ const gateway = (WSS, redis) => {
                         return socket.close(1003, SOCKET_CODES[0]);
                     };
 
-                    // await send_enc_message('join', msg, socket.user);
+                    // send_message('join', msg, socket.user);
 
                     current_client = await redis.HGETALL(socket.user.username);
 
@@ -73,7 +69,7 @@ const gateway = (WSS, redis) => {
                     //sending user join message to each client if the client connection was off for minimum 5 seconds.
 
                     if (!current_client.left) {
-                        await send_enc_message('join', msg, socket.user);
+                        send_message('join', msg, socket.user);
                         await redis.HSET(socket.user.username, 'left', 'false');
                     };
 
@@ -86,19 +82,19 @@ const gateway = (WSS, redis) => {
                         } else {
                             msg.isOpponent = true;
                         };
-                        await send_enc_message('transport', msg, null, socket);
+                        send_message('transport', msg, null, socket);
                     });
 
                     return;
                 };
 
                 if (msg.type && msg.type === 'typing') {
-                    await send_enc_message('default', msg, socket.user);
+                    send_message('default', msg, socket.user);
                     return;
                 };
 
                 if (msg.type && msg.type === 'clients_length') {
-                    await send_enc_message('clients_length', null, null, socket);
+                    send_message('clients_length', null, null, socket);
                     return;
                 };
 
@@ -114,7 +110,7 @@ const gateway = (WSS, redis) => {
                     else {
                         msg.isOpponent = true;
                     }
-                    await send_enc_message('default', msg, null, client);
+                    send_message('default', msg, null, client);
                 });
             }
             catch (err) {
@@ -148,7 +144,7 @@ const gateway = (WSS, redis) => {
                     if (connected === 'false' || connected <= 0) {
                         current_client.left = 'true';
                         await redis.HSET(socket.user.username, 'left', 'true');
-                        await send_enc_message('left', null, socket.user.username);
+                        send_message('left', null, socket.user.username);
                     }
                 }, 5000);
             } catch (err) {
