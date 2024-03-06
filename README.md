@@ -1,10 +1,8 @@
 # Chat Planet
 
-Welcome to the Chat Planet! This application allows users to create accounts and chat with other global users anonymously. Users are not required to provide an email or password; they simply need to choose a username to get started. The application is built using React, Node.js, Express, and Websockets to facilitate real-time communication.
+Welcome to the Chat Planet! This application allows users to create accounts and chat with other global users anonymously. Users simply need to choose a username and password to get started. The application is built using React, Node.js, Express, and Websockets to facilitate real-time communication.
 
 ## Features
-User Registration: Users can create accounts by selecting a unique username. No email or password is required, ensuring complete anonymity.
-
 Global Chat: Once registered, users can enter chat rooms and engage in real-time conversations with other users from around the world.
 
 Anonymous Chatting: Users can chat anonymously, as no personal information is collected during registration.

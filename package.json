@@ -10,9 +10,9 @@
     "install_backend": "cd backend && npm install",
     "install_frontend": "cd frontend && npm install",
     "setup": "npm run install_backend && npm run install_frontend && npm install",
-    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "dev": "npm run setup && concurrently \"npm run backend\" \"npm run frontend\"",
     "build": "cd frontend && npm run build",
-    "prod": "npm run build && npm run backend"
+    "prod": "npm run setup && npm run build && npm run backend"
   },
   "repository": {
     "type": "git",
