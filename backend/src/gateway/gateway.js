@@ -1,7 +1,6 @@
 const SOCKET_CODES = ['USERNAME_REQUIRED'];
 
 const gateway = (WSS, redis) => {
-
     const get_current_time = () => {
         const now = new Date(Date.now())
         const minutes = now.getMinutes();

@@ -18,47 +18,43 @@ app.use(cors({ origin: '*' }));
 app.use('/api/auth', user_router);
 
 if (config.environment === 'production') {
-    const build_path = path.join(__dirname, '..', '..', 'frontend', 'build');
-    app.use('/static', express.static(path.join(build_path, 'static')));
-    app.use('/static', express.static(build_path));
-    app.get('*', (_, res) => {
-        res.sendFile('index.html', {root : build_path});
-    });
-};
+   const build_path = path.join(__dirname, '..', '..', 'frontend', 'build');
+   app.use('/static', express.static(path.join(build_path, 'static')));
+   app.use('/static', express.static(build_path));
+   app.get('*', (_, res) => {
+      res.sendFile('index.html', { root: build_path });
+   });
+}
 
 const server = http.createServer(app);
 
 app.use('*', (_, res) => {
-    res.status(403).send('ACCESS DENIED');
+   res.status(403).send('ACCESS DENIED');
 });
 
 const WSS = new WebSocketServer({
-    noServer: true,
-    path: '/chat'
-}, () => {
-    console.log('websocket server is listening on port:', config.gateway.port);
+   noServer: true,
 });
 
 server.on('upgrade', async (request, socket, head) => {
-    try {
-        const authenticated_user = isAuthenticated(request);
-        if (!authenticated_user) {
-            return socket.destroy();
-        };
+   try {
+      console.log('got connection-----');
+      const authenticated_user = isAuthenticated(request);
+      if (!authenticated_user) {
+         return socket.destroy();
+      }
 
-        WSS.handleUpgrade(request, socket, head, function done(ws) {
-            ws.user = authenticated_user;
-            WSS.emit('connection', ws, request);
-        });
-    } catch (e) {
-        console.error('an error occured', e);
-    }
-})
-
+      WSS.handleUpgrade(request, socket, head, function done(ws) {
+         ws.user = authenticated_user;
+         WSS.emit('connection', ws, request);
+      });
+   } catch (e) {
+      console.error('an error occured', e);
+   }
+});
 
 gateway(WSS, redis);
 
-
 server.listen(config.server.port, () => {
-    console.log('server is up on port:', config.server.port);
+   console.log('server is up on port:', config.server.port);
 });
